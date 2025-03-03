@@ -117,3 +117,16 @@ export const BottomToolbar: FC<BottomToolbarProps> = memo(
 );
 
 BottomToolbar.displayName = "BottomToolbar";
+
+export const BottomToolbarSkeleton = memo(() => {
+  return (
+    <HStack p="sm" gap="sm">
+      <Textarea autosize maxRows={8} rows={1} placeholder="Type a message" />
+      <IconButton colorScheme="primary" placeSelf="end">
+        <SendIcon />
+      </IconButton>
+    </HStack>
+  );
+});
+
+BottomToolbarSkeleton.displayName = "BottomToolbarSkeleton";

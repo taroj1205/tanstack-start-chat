@@ -20,7 +20,6 @@ export const env = createEnv({
     POSTGRES_DB: z.string(),
     POSTGRES_USER: z.string(),
     POSTGRES_PASSWORD: z.string(),
-    BASE_URL: z.string().url(),
   },
   
   /**
@@ -30,7 +29,7 @@ export const env = createEnv({
   */
  client: {
    // NEXT_PUBLIC_CLIENTVAR: z.string(),
-   BASE_URL: z.string().url(),
+   VITE_BASE_URL: z.string().url(),
   },
 
   /**
@@ -46,7 +45,7 @@ export const env = createEnv({
     POSTGRES_DB: process.env.POSTGRES_DB,
     POSTGRES_USER: process.env.POSTGRES_USER,
     POSTGRES_PASSWORD: process.env.POSTGRES_PASSWORD,
-    BASE_URL: process.env.BASE_URL,
+    VITE_BASE_URL: process.env.VITE_BASE_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -12,8 +12,9 @@ import {
 import { FC, memo, Suspense } from "react";
 import { UserComponent } from "./toolbar";
 import { Channels } from "./channels";
-import { Channel, User } from "@prisma/client";
+import { Channel } from "@prisma/client";
 import { signIn, useSession } from "~/lib/client/auth";
+import { User } from "better-auth";
 
 export interface SidebarProps {
   channels: Channel[];
@@ -23,7 +24,12 @@ export interface SidebarProps {
 export const Sidebar: FC<GridProps & SidebarProps> = memo(
   ({ channels, user, ...props }) => {
     return (
-      <Grid gridTemplateRows="1fr auto" w="sm" h="full" {...props}>
+      <Grid
+        gridTemplateRows="1fr auto"
+        w={{ base: "sm", lg: "sm" }}
+        h="full"
+        {...props}
+      >
         <Suspense>
           <Channels channels={channels} />
         </Suspense>

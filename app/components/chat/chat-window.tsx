@@ -1,8 +1,9 @@
-import { For, VStack, InfiniteScrollArea } from "@yamada-ui/react";
+import { For, VStack, InfiniteScrollArea, ScrollArea } from "@yamada-ui/react";
 import { memo } from "react";
 import { ChatItem, ChatItemSkeleton } from "./chat-item";
 import { User } from "better-auth";
 import { ChannelWithMessages } from "~/utils/chat";
+import { BottomToolbarSkeleton } from "./bottom-toolbar";
 
 interface ChatWindowProps {
   channel: ChannelWithMessages;
@@ -18,6 +19,7 @@ export const ChatWindow = memo(({ channel, loading }: ChatWindowProps) => {
       gap="0"
       reverse
       loading={loading}
+      maxH="calc(100svh - 56px)"
     >
       <For each={channel.messages}>
         {(message) => (
@@ -36,10 +38,13 @@ ChatWindow.displayName = "ChatWindow";
 
 export const ChatWindowSkeleton = memo(() => {
   return (
-    <VStack bg="blackAlpha.100" p="0" h="full" gap="0" overflowY="auto">
-      <For each={Array.from({ length: 10 })}>
-        {(_, index) => <ChatItemSkeleton key={index} />}
-      </For>
+    <VStack bg="blackAlpha.100" p="0" gap="0">
+      <ScrollArea h="full" maxH="calc(100vh - 56px)">
+        <For each={Array.from({ length: 10 })}>
+          {(_, index) => <ChatItemSkeleton key={index} />}
+        </For>
+      </ScrollArea>
+      <BottomToolbarSkeleton />
     </VStack>
   );
 });

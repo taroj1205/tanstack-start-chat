@@ -4,7 +4,7 @@ import { signIn, useSession } from "~/lib/client/auth";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad({ context }) {
-    if (context.user) redirect({ to: "/chat" });
+    if (context.user) throw redirect({ to: "/chat" });
   },
   component: AuthComponent,
 });

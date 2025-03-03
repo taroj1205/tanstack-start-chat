@@ -9,6 +9,7 @@ import {
   Container,
   Button,
   Text,
+  ScrollArea,
 } from "@yamada-ui/react";
 import { ChatWindow, ChatWindowSkeleton } from "~/components/chat";
 import { BottomToolbar } from "~/components/chat/bottom-toolbar";
@@ -45,6 +46,8 @@ function ChannelErrorComponent({ error }: ErrorComponentProps) {
 function RouteComponent() {
   const data = Route.useLoaderData();
 
+  if (!data.user) return <AuthComponent />;
+
   const {
     data: messages,
     refetch,
@@ -63,10 +66,12 @@ function RouteComponent() {
   return (
     <Grid gridTemplateRows="1fr auto" h="full" bg="blackAlpha.100">
       <Suspense fallback={<ChatWindowSkeleton />}>
-        <ChatWindow
-          channel={{ ...data, messages: messages || [] }}
-          loading={isPending || isLoading}
-        />
+        <ScrollArea>
+          <ChatWindow
+            channel={{ ...data, messages: messages || [] }}
+            loading={isPending || isLoading}
+          />
+        </ScrollArea>
         <BottomToolbar
           channel={data}
           user={data.user}
