@@ -22,14 +22,15 @@ export const env = createEnv({
     POSTGRES_PASSWORD: z.string(),
     BASE_URL: z.string().url(),
   },
-
+  
   /**
    * Specify your client-side environment variables schema here. This way you can ensure the app
    * isn't built with invalid env vars. To expose them to the client, prefix them with
    * `NEXT_PUBLIC_.
-   */
-  client: {
-    // NEXT_PUBLIC_CLIENTVAR: z.string(),
+  */
+ client: {
+   // NEXT_PUBLIC_CLIENTVAR: z.string(),
+   BASE_URL: z.string().url(),
   },
 
   /**
