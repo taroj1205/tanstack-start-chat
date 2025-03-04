@@ -11,7 +11,7 @@ export const Route = createFileRoute("/auth")({
 
 export function AuthComponent() {
   const handleClick = async () => {
-    await signIn.social({ provider: "discord" });
+    await signIn.social({ provider: "discord", callbackURL: "/chat" });
   };
   return (
     <Center h="100svh">
