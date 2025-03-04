@@ -7,9 +7,6 @@ pnpm prisma generate
 # Run migrations
 pnpm prisma migrate deploy
 
-# Seed the database
-pnpm prisma db seed
-
 # Build the application
 pnpm run build
 
