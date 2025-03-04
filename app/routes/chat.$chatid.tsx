@@ -1,4 +1,4 @@
-import { ErrorComponent, Navigate } from "@tanstack/react-router";
+import { ErrorComponent, Navigate, notFound } from "@tanstack/react-router";
 import { ErrorComponentProps, useNavigate } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -10,6 +10,7 @@ import {
   Button,
   Text,
   ScrollArea,
+  Center,
 } from "@yamada-ui/react";
 import { ChatWindow, ChatWindowSkeleton } from "~/components/chat";
 import { BottomToolbar } from "~/components/chat/bottom-toolbar";
@@ -25,10 +26,7 @@ import { redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/chat/$chatid")({
   beforeLoad: async ({ params: { chatid } }) => {
     const channel = await fetchChannel({ data: chatid });
-    if (!channel) {
-      throw redirect({ to: "/chat" });
-    }
-    return channel;
+    return { channel };
   },
   loader: ({ context }) => context,
   errorComponent: ChannelErrorComponent,
@@ -48,19 +46,25 @@ function RouteComponent() {
 
   if (!data.user) return <AuthComponent />;
 
+  if (!data || !data.channel || !data.channel.id || !data.channel.name)
+    return <NotFound>Channel not found</NotFound>;
+
+  const channel = data.channel;
+
+  if (!channel) return <NotFound>Channel not found</NotFound>;
+
   const {
     data: messages,
     refetch,
     isPending,
     isLoading,
   } = useQuery({
-    queryKey: [`channel-messages-${data.id}`],
+    queryKey: [`channel-messages-${channel.id}`],
     queryFn: () =>
       getChannelMessages({
-        data: data.id,
+        data: channel.id,
       }),
     refetchInterval: 3000, // Poll every 3 seconds
-    staleTime: 3000,
   });
 
   return (
@@ -68,12 +72,12 @@ function RouteComponent() {
       <Suspense fallback={<ChatWindowSkeleton />}>
         <ScrollArea>
           <ChatWindow
-            channel={{ ...data, messages: messages || [] }}
+            channel={{ ...channel, messages: messages || [] }}
             loading={isPending || isLoading}
           />
         </ScrollArea>
         <BottomToolbar
-          channel={data}
+          channel={channel}
           user={data.user}
           onMessageSent={() => refetch()}
         />

@@ -12,7 +12,13 @@ import { SearchIcon, HouseIcon, ArrowLeftIcon } from "@yamada-ui/lucide";
 
 export function NotFound({ children }: { children?: any }) {
   return (
-    <Container as="main" centerContent h="100vh" bg={["gray.50", "gray.900"]}>
+    <Container
+      as="main"
+      centerContent
+      h="100svh"
+      bg={["gray.50", "gray.900"]}
+      placeContent="center"
+    >
       <Center as={VStack} textAlign="center" maxW="600px">
         <SearchIcon w={20} h={20} color={["primary.500", "primary.400"]} />
 
