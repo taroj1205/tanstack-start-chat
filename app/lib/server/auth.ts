@@ -15,5 +15,10 @@ export const auth = betterAuth({
       clientSecret: env.DISCORD_CLIENT_SECRET,
     },
   },
+  trustedOrigins: [
+    env.BASE_URL,
+    "http://localhost:3000",
+    "https://chat.poyo.jp",
+  ],
   plugins: [anonymous()],
 });
