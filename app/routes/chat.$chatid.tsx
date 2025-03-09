@@ -2,6 +2,7 @@ import {
   ErrorComponent,
   Await,
   ErrorComponentProps,
+  useRouter,
 } from "@tanstack/react-router";
 import { createFileRoute } from "@tanstack/react-router";
 import { Grid, ScrollArea } from "@yamada-ui/react";
@@ -14,6 +15,7 @@ import { NotFound } from "~/components/not-found";
 import { getChannel, getChannelMessages } from "~/utils/server/chat";
 import { AuthComponent } from "./auth";
 import { Suspense, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/chat/$chatid")({
   loader: async ({ context, params: { chatid } }) => {
@@ -26,9 +28,9 @@ export const Route = createFileRoute("/chat/$chatid")({
     return {
       user: context.user,
       channel: channel,
-      messages: channel
-        ? getChannelMessages({ data: channel.id })
-        : Promise.resolve(null),
+      // messages: channel
+      //   ? getChannelMessages({ data: channel.id })
+      //   : Promise.resolve(null),
       queryClient: context.queryClient,
     };
   },
@@ -45,32 +47,34 @@ function ChannelErrorComponent({ error }: ErrorComponentProps) {
 }
 
 function RouteComponent() {
+  const route = useRouter();
   const data = Route.useLoaderData();
 
   if (!data.user) return <AuthComponent />;
 
   if (!data || !data.channel) return <NotFound>Channel not found</NotFound>;
 
+  const { data: messages, refetch } = useQuery({
+    queryKey: ["messages", data.channel.id],
+    queryFn: () => getChannelMessages({ data: data.channel.id }),
+    enabled: !!data.channel.id,
+  });
+
   const refreshMessages = async () => {
-    // const channel = await data.channel;
-    // if (channel) {
-    //   const queryClient = useQueryClient();
-    //   queryClient.invalidateQueries({
-    //     queryKey: ["messages", channel.id],
-    //   });
-    // }
+    refetch();
   };
 
   return (
     <Grid gridTemplateRows="1fr auto" h="full" bg="blackAlpha.100">
       <Suspense fallback={<ChatWindowSkeleton />}>
         <ScrollArea>
-          <Await
+          {/* <Await
             promise={data.messages}
             children={(messages) => (
               <ChatWindow channel={data.channel} messages={messages} />
             )}
-          />
+          /> */}
+          <ChatWindow channel={data.channel} messages={messages || []} />
         </ScrollArea>
       </Suspense>
       <Suspense fallback={<BottomToolbarSkeleton />}>
