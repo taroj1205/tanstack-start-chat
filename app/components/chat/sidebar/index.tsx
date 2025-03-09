@@ -1,5 +1,4 @@
 import {
-  For,
   Grid,
   HStack,
   VStack,
@@ -13,16 +12,22 @@ import { FC, memo, Suspense } from "react";
 import { UserComponent } from "./toolbar";
 import { Channels } from "./channels";
 import { Channel } from "@prisma/client";
-import { signIn, useSession } from "~/lib/client/auth";
+import { signIn } from "~/lib/client/auth";
 import { User } from "better-auth";
+import { useQuery } from "@tanstack/react-query";
+import { fetchChannels } from "~/utils/chat";
 
 export interface SidebarProps {
-  channels: Channel[];
-  user?: User;
+  user: User | null;
 }
 
 export const Sidebar: FC<GridProps & SidebarProps> = memo(
-  ({ channels, user, ...props }) => {
+  ({ user, ...props }) => {
+    const { data: channels } = useQuery({
+      queryKey: ["channels"],
+      queryFn: () => fetchChannels(),
+      initialData: [] as Channel[],
+    });
     return (
       <Grid
         gridTemplateRows="1fr auto"

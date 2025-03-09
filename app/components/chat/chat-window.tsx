@@ -4,30 +4,55 @@ import {
   InfiniteScrollArea,
   ScrollArea,
   Heading,
-  Box,
   Center,
   Text,
+  Grid,
+  GridItem,
 } from "@yamada-ui/react";
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { ChatItem, ChatItemSkeleton } from "./chat-item";
-import { User } from "better-auth";
-import { ChannelWithMessages } from "~/utils/chat";
 import { BottomToolbarSkeleton } from "./bottom-toolbar";
 import { HashIcon } from "@yamada-ui/lucide";
+import { Channel } from "@prisma/client";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { getChannelMessages } from "~/utils/server/chat";
+import { NotFound } from "../not-found";
+import { MessageWithUser } from "~/utils/chat";
 
 interface ChatWindowProps {
-  channel: ChannelWithMessages;
-  loading: boolean;
+  channel: Channel;
+  messages: MessageWithUser[] | null;
 }
 
-export const ChatWindow = memo(({ channel, loading }: ChatWindowProps) => {
+export const ChatWindow = memo(({ channel, messages }: ChatWindowProps) => {
+  if (!channel) return <NotFound>Channel not found</NotFound>;
+
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const prevChannelMessagesLength = useRef(channel.messages.length);
-  const scrolledToBottom = useRef(false);
+  const scrolledToBottom = useRef(true);
+
+  const { data: currentChannelMessages, isLoading } = useQuery<
+    MessageWithUser[]
+  >({
+    queryKey: ["messages", channel.id],
+    queryFn: () =>
+      getChannelMessages({
+        data: channel.id,
+      }),
+    initialData: messages || [],
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+    placeholderData: keepPreviousData,
+  });
+
+  const prevChannelMessagesLength = useRef(currentChannelMessages?.length || 0);
 
   useEffect(() => {
     if (
-      prevChannelMessagesLength.current !== channel.messages.length &&
+      prevChannelMessagesLength.current !==
+        (currentChannelMessages?.length || 0) &&
       scrollAreaRef.current &&
       scrolledToBottom.current
     ) {
@@ -37,9 +62,9 @@ export const ChatWindow = memo(({ channel, loading }: ChatWindowProps) => {
         behavior: "smooth",
       });
 
-      prevChannelMessagesLength.current = channel.messages.length;
+      prevChannelMessagesLength.current = currentChannelMessages?.length || 0;
     }
-  }, [channel.messages]);
+  }, [currentChannelMessages]);
 
   const handleScroll = () => {
     if (scrollAreaRef.current) {
@@ -60,8 +85,8 @@ export const ChatWindow = memo(({ channel, loading }: ChatWindowProps) => {
       p="0"
       h="full"
       gap="0"
-      loading={loading}
       maxH="calc(100svh - 56px)"
+      loading={isLoading}
       onScroll={handleScroll}
     >
       <VStack p="md">
@@ -79,7 +104,7 @@ export const ChatWindow = memo(({ channel, loading }: ChatWindowProps) => {
         <Text>This is the start of {channel.name} channel.</Text>
       </VStack>
       <VStack gap="0">
-        <For each={channel.messages}>
+        <For each={currentChannelMessages || []}>
           {(message) => (
             <ChatItem
               key={message.id}
@@ -97,14 +122,16 @@ ChatWindow.displayName = "ChatWindow";
 
 export const ChatWindowSkeleton = memo(() => {
   return (
-    <VStack bg="blackAlpha.100" p="0" gap="0">
-      <ScrollArea h="full" maxH="calc(100vh - 56px)">
-        <For each={Array.from({ length: 10 })}>
-          {(_, index) => <ChatItemSkeleton key={index} />}
-        </For>
-      </ScrollArea>
-      <BottomToolbarSkeleton />
-    </VStack>
+    <Grid gridTemplateRows="1fr auto" h="full" bg="blackAlpha.100">
+      <GridItem as={VStack} bg="blackAlpha.100" p="0" gap="0">
+        <ScrollArea h="full" maxH="calc(100vh - 56px)">
+          <For each={Array.from({ length: 10 })}>
+            {(_, index) => <ChatItemSkeleton key={index} />}
+          </For>
+        </ScrollArea>
+        <BottomToolbarSkeleton />
+      </GridItem>
+    </Grid>
   );
 });
 

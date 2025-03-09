@@ -1,9 +1,8 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/start";
-import { getChannel, getChannelMessages, getChannels } from "../db/chat";
-import { Channel, Message, User } from "@prisma/client";
-import { redirect } from "@tanstack/react-router";
-import { auth } from "~/lib/server/auth";
+import { getChannel, getChannels } from "../db/chat";
+import { Channel, Message } from "@prisma/client";
+import { User } from "better-auth";
 
 export interface MessageWithUser extends Message {
   user: User;

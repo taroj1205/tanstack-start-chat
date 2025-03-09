@@ -1,9 +1,7 @@
-import { redirect } from "@tanstack/react-router";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import {
   Drawer,
   DrawerBody,
-  DrawerCloseButton,
   DrawerHeader,
   DrawerOverlay,
   Grid,
@@ -16,22 +14,10 @@ import {
   Sidebar,
   SidebarSkeleton,
 } from "~/components/chat";
-import { fetchChannels } from "~/utils/chat";
-import { AuthComponent } from "./auth";
-import { Suspense } from "react";
-import { getSession } from "~/lib/client/auth";
 import { MenuIcon, XIcon } from "@yamada-ui/lucide";
 
 export const Route = createFileRoute("/chat")({
-  beforeLoad: async ({ context }) => {
-    if (!context.user) {
-      throw redirect({ to: "/auth" });
-    }
-    return { channels: await fetchChannels() };
-  },
-  loader: ({ context }) => {
-    return { channels: context.channels, user: context.user };
-  },
+  loader: ({ context }) => context,
   component: () => <ChatLayout />,
   pendingComponent: () => (
     <Grid gridTemplateColumns="auto 1fr" flexGrow={1} h="full">
@@ -102,20 +88,14 @@ function ChatLayout() {
           />
         </DrawerHeader>
         <DrawerBody px="0" my="0">
-          <Suspense fallback={<SidebarSkeleton />}>
-            <Sidebar channels={context.channels} user={context.user} />
-          </Suspense>
+          <Sidebar user={context.user} />
         </DrawerBody>
       </Drawer>
       <GridItem display={{ lg: "none" }}>
-        <Suspense fallback={<SidebarSkeleton />}>
-          <Sidebar channels={context.channels} user={context.user} />
-        </Suspense>
+        <Sidebar user={context.user} />
       </GridItem>
       <GridItem flex={1}>
-        <Suspense fallback={<ChatWindowSkeleton />}>
-          <Outlet />
-        </Suspense>
+        <Outlet />
       </GridItem>
     </Grid>
   );

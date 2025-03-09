@@ -1,34 +1,37 @@
-import { ErrorComponent, Navigate, notFound } from "@tanstack/react-router";
-import { ErrorComponentProps, useNavigate } from "@tanstack/react-router";
-import { createFileRoute } from "@tanstack/react-router";
 import {
-  Grid,
-  Textarea,
-  HStack,
-  IconButton,
-  Container,
-  Button,
-  Text,
-  ScrollArea,
-  Center,
-} from "@yamada-ui/react";
+  ErrorComponent,
+  Await,
+  ErrorComponentProps,
+} from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Grid, ScrollArea } from "@yamada-ui/react";
 import { ChatWindow, ChatWindowSkeleton } from "~/components/chat";
-import { BottomToolbar } from "~/components/chat/bottom-toolbar";
+import {
+  BottomToolbar,
+  BottomToolbarSkeleton,
+} from "~/components/chat/bottom-toolbar";
 import { NotFound } from "~/components/not-found";
-import { getSession, signIn, useSession } from "~/lib/client/auth";
-import { fetchChannel } from "~/utils/chat";
-import { useQuery } from "@tanstack/react-query";
-import { getChannelMessages } from "~/utils/server/chat";
+import { getChannel, getChannelMessages } from "~/utils/server/chat";
 import { AuthComponent } from "./auth";
-import { Suspense } from "react";
-import { redirect } from "@tanstack/react-router";
+import { Suspense, useRef } from "react";
 
 export const Route = createFileRoute("/chat/$chatid")({
-  beforeLoad: async ({ params: { chatid } }) => {
-    const channel = await fetchChannel({ data: chatid });
-    return { channel };
+  loader: async ({ context, params: { chatid } }) => {
+    const channel = await getChannel({ data: chatid });
+
+    if (!channel) {
+      throw new Error("Channel not found");
+    }
+
+    return {
+      user: context.user,
+      channel: channel,
+      messages: channel
+        ? getChannelMessages({ data: channel.id })
+        : Promise.resolve(null),
+      queryClient: context.queryClient,
+    };
   },
-  loader: ({ context }) => context,
   errorComponent: ChannelErrorComponent,
   component: RouteComponent,
   notFoundComponent: () => {
@@ -46,40 +49,35 @@ function RouteComponent() {
 
   if (!data.user) return <AuthComponent />;
 
-  if (!data || !data.channel || !data.channel.id || !data.channel.name)
-    return <NotFound>Channel not found</NotFound>;
+  if (!data || !data.channel) return <NotFound>Channel not found</NotFound>;
 
-  const channel = data.channel;
-
-  if (!channel) return <NotFound>Channel not found</NotFound>;
-
-  const {
-    data: messages,
-    refetch,
-    isPending,
-    isLoading,
-  } = useQuery({
-    queryKey: [`channel-messages-${channel.id}`],
-    queryFn: () =>
-      getChannelMessages({
-        data: channel.id,
-      }),
-    refetchInterval: 3000, // Poll every 3 seconds
-  });
+  const refreshMessages = async () => {
+    // const channel = await data.channel;
+    // if (channel) {
+    //   const queryClient = useQueryClient();
+    //   queryClient.invalidateQueries({
+    //     queryKey: ["messages", channel.id],
+    //   });
+    // }
+  };
 
   return (
     <Grid gridTemplateRows="1fr auto" h="full" bg="blackAlpha.100">
       <Suspense fallback={<ChatWindowSkeleton />}>
         <ScrollArea>
-          <ChatWindow
-            channel={{ ...channel, messages: messages || [] }}
-            loading={isPending || isLoading}
+          <Await
+            promise={data.messages}
+            children={(messages) => (
+              <ChatWindow channel={data.channel} messages={messages} />
+            )}
           />
         </ScrollArea>
+      </Suspense>
+      <Suspense fallback={<BottomToolbarSkeleton />}>
         <BottomToolbar
-          channel={channel}
+          channel={data.channel}
           user={data.user}
-          onMessageSent={() => refetch()}
+          onMessageSent={refreshMessages}
         />
       </Suspense>
     </Grid>

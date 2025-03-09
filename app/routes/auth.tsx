@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/start";
 import { Button, Center } from "@yamada-ui/react";
-import { signIn, useSession } from "~/lib/client/auth";
+import { signIn } from "~/lib/client/auth";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad({ context }) {

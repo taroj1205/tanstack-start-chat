@@ -53,6 +53,7 @@ export const sendMessage = createServerFn({ method: "POST" })
 export const getChannelMessages = createServerFn({ method: "GET" })
   .validator((channelId: string) => channelId)
   .handler(async ({ data: channelId }) => {
+    console.log("fetching messages", channelId);
     return await prisma.message.findMany({
       where: { channelId },
       orderBy: { createdAt: "asc" },
