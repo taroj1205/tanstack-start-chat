@@ -19,10 +19,11 @@ import { fetchChannels } from "~/utils/chat";
 
 export interface SidebarProps {
   user: User | null;
+  onClose: () => void;
 }
 
 export const Sidebar: FC<GridProps & SidebarProps> = memo(
-  ({ user, ...props }) => {
+  ({ user, onClose, ...props }) => {
     const { data: channels } = useQuery({
       queryKey: ["channels"],
       queryFn: () => fetchChannels(),
@@ -36,7 +37,7 @@ export const Sidebar: FC<GridProps & SidebarProps> = memo(
         {...props}
       >
         <Suspense>
-          <Channels channels={channels} />
+          <Channels channels={channels} onClose={onClose} />
         </Suspense>
         <HStack bg="blackAlpha.100" p="sm">
           <Suspense>

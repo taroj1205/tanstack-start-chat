@@ -15,12 +15,21 @@ import {
   SidebarSkeleton,
 } from "~/components/chat";
 import { MenuIcon, XIcon } from "@yamada-ui/lucide";
+import { redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/chat")({
+  beforeLoad({ context }) {
+    if (!context.user) throw redirect({ to: "/chat" });
+  },
   loader: ({ context }) => context,
   component: () => <ChatLayout />,
   pendingComponent: () => (
-    <Grid gridTemplateColumns="auto 1fr" flexGrow={1} h="full">
+    <Grid
+      gridTemplateColumns={{ base: "auto 1fr", lg: "1fr" }}
+      flexGrow={1}
+      h="full"
+      w="full"
+    >
       <GridItem display="grid" gridTemplateRows="1fr auto">
         <SidebarSkeleton />
       </GridItem>
@@ -58,13 +67,14 @@ function ChatLayout() {
     >
       <IconButton
         icon={<MenuIcon fontSize="2xl" />}
-        variant="ghost"
+        variant="subtle"
         onClick={onOpen}
         position="fixed"
         size="sm"
         top="md"
         left="md"
         display={{ base: "none", lg: "flex" }}
+        z={10}
       />
       <Drawer
         open={open}
@@ -88,11 +98,11 @@ function ChatLayout() {
           />
         </DrawerHeader>
         <DrawerBody px="0" my="0">
-          <Sidebar user={context.user} />
+          <Sidebar user={context.user} onClose={onClose} />
         </DrawerBody>
       </Drawer>
       <GridItem display={{ lg: "none" }}>
-        <Sidebar user={context.user} />
+        <Sidebar user={context.user} onClose={onClose} />
       </GridItem>
       <GridItem flex={1}>
         <Outlet />

@@ -6,13 +6,16 @@ import { Channel } from "@prisma/client";
 
 export type ChannelsProps = {
   channels: Channel[];
+  onClose: () => void;
 };
 
-export const Channels: FC<ChannelsProps> = memo(({ channels }) => {
+export const Channels: FC<ChannelsProps> = memo(({ channels, onClose }) => {
   return (
     <VStack gap="0" p="md">
       <For each={channels}>
-        {(channel) => <ChannelItem key={channel.id} channel={channel} />}
+        {(channel) => (
+          <ChannelItem key={channel.id} channel={channel} onClose={onClose} />
+        )}
       </For>
     </VStack>
   );

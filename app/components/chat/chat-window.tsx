@@ -89,7 +89,7 @@ export const ChatWindow = memo(({ channel, messages }: ChatWindowProps) => {
       loading={isLoading}
       onScroll={handleScroll}
     >
-      <VStack p="md">
+      <VStack px="md" pb="md" pt="2xl">
         <Center
           bg={["blackAlpha.200", "whiteAlpha.200"]}
           w="fit-content"
