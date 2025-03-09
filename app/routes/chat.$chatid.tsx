@@ -61,7 +61,6 @@ function RouteComponent() {
     refetchIntervalInBackground: true,
     refetchOnMount: true,
     refetchOnWindowFocus: true,
-    staleTime: 0,
   });
 
   const refreshMessages = async () => {
