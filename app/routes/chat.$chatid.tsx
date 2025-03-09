@@ -56,7 +56,6 @@ function RouteComponent() {
   const { data: messages, refetch } = useQuery({
     queryKey: ["messages", data.channel.id],
     queryFn: () => getChannelMessages({ data: data.channel.id }),
-    enabled: !!data.channel.id,
     placeholderData: keepPreviousData,
     refetchInterval: 3000,
     refetchIntervalInBackground: true,
