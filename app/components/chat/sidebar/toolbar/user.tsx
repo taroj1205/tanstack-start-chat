@@ -21,6 +21,8 @@ import {
 } from "@yamada-ui/react";
 import type { UserProps } from "~/lib/channels";
 import type { User as BetterAuthUser } from "better-auth";
+import { signOut } from "~/lib/client/auth";
+import { useRouter } from "@tanstack/react-router";
 
 export type UserComponentProps = {
   text: string;
@@ -33,6 +35,12 @@ export type UserComponentProps = {
 
 export const UserComponent: FC<GridProps & UserComponentProps> = memo(
   ({ text, timestamp, user, indicator, avatarProps, userProps, ...props }) => {
+    const router = useRouter();
+    const handleLogout = () => {
+      signOut().then(() => {
+        router.navigate({ to: "/" });
+      });
+    };
     const { colorMode, changeColorMode } = useColorMode();
     return (
       <Menu lazy>
@@ -99,8 +107,7 @@ export const UserComponent: FC<GridProps & UserComponentProps> = memo(
               </MenuList>
             </Menu>
           </MenuItem>
-          <MenuItem>Edit Profile</MenuItem>
-          <MenuItem>Preferences</MenuItem>
+          <MenuItem onClick={handleLogout}>Logout</MenuItem>
         </MenuList>
       </Menu>
     );

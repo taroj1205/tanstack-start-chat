@@ -19,7 +19,7 @@ import { redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/chat")({
   beforeLoad({ context }) {
-    if (!context.user) throw redirect({ to: "/chat" });
+    if (!context.user) throw redirect({ to: "/auth" });
   },
   loader: ({ context }) => context,
   component: () => <ChatLayout />,
