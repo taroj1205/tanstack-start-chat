@@ -15,7 +15,7 @@ import { NotFound } from "~/components/not-found";
 import { getChannel, getChannelMessages } from "~/utils/server/chat";
 import { AuthComponent } from "./auth";
 import { Suspense, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/chat/$chatid")({
   loader: async ({ context, params: { chatid } }) => {
@@ -47,7 +47,6 @@ function ChannelErrorComponent({ error }: ErrorComponentProps) {
 }
 
 function RouteComponent() {
-  const route = useRouter();
   const data = Route.useLoaderData();
 
   if (!data.user) return <AuthComponent />;
@@ -58,6 +57,12 @@ function RouteComponent() {
     queryKey: ["messages", data.channel.id],
     queryFn: () => getChannelMessages({ data: data.channel.id }),
     enabled: !!data.channel.id,
+    placeholderData: keepPreviousData,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const refreshMessages = async () => {

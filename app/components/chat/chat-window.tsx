@@ -30,29 +30,11 @@ export const ChatWindow = memo(({ channel, messages }: ChatWindowProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const scrolledToBottom = useRef(true);
 
-  const { data: currentChannelMessages, isLoading } = useQuery<
-    MessageWithUser[]
-  >({
-    queryKey: ["messages", channel.id],
-    queryFn: () =>
-      getChannelMessages({
-        data: channel.id,
-      }),
-    initialData: messages || [],
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    staleTime: 0,
-    placeholderData: keepPreviousData,
-  });
-
-  const prevChannelMessagesLength = useRef(currentChannelMessages?.length || 0);
+  const prevChannelMessagesLength = useRef(messages?.length || 0);
 
   useEffect(() => {
     if (
-      prevChannelMessagesLength.current !==
-        (currentChannelMessages?.length || 0) &&
+      prevChannelMessagesLength.current !== (messages?.length || 0) &&
       scrollAreaRef.current &&
       scrolledToBottom.current
     ) {
@@ -62,9 +44,9 @@ export const ChatWindow = memo(({ channel, messages }: ChatWindowProps) => {
         behavior: "smooth",
       });
 
-      prevChannelMessagesLength.current = currentChannelMessages?.length || 0;
+      prevChannelMessagesLength.current = messages?.length || 0;
     }
-  }, [currentChannelMessages]);
+  }, [messages]);
 
   const handleScroll = () => {
     if (scrollAreaRef.current) {
@@ -86,7 +68,7 @@ export const ChatWindow = memo(({ channel, messages }: ChatWindowProps) => {
       h="full"
       gap="0"
       maxH="calc(100svh - 56px)"
-      loading={isLoading}
+      // loading={isLoading}
       onScroll={handleScroll}
     >
       <VStack px="md" pb="md" pt="2xl">
@@ -104,7 +86,7 @@ export const ChatWindow = memo(({ channel, messages }: ChatWindowProps) => {
         <Text>This is the start of {channel.name} channel.</Text>
       </VStack>
       <VStack gap="0">
-        <For each={currentChannelMessages || []}>
+        <For each={messages || []}>
           {(message) => (
             <ChatItem
               key={message.id}
